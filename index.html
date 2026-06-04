@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Rewards - สะสมแต้ม & ถอนรางวัล</title>
+    <title>TKR Project - Token Rewards</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -24,7 +24,8 @@
             max-width: 420px;
             width: 90%;
         }
-        h1 { color: #4CAF50; margin-bottom: 10px; font-size: 24px; }
+        h1 { color: #4CAF50; margin-bottom: 5px; font-size: 26px; font-weight: bold; }
+        .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
         .score-box {
             background-color: #2a2a2a;
             padding: 15px;
@@ -87,24 +88,24 @@
 <body>
 
 <div class="container">
-    <h1>🎁 แอปสะสมแต้มรับเหรียญ</h1>
-    <p style="color: #aaa; font-size: 14px;">เช็คอินสะสมแต้มฟรี เพื่อนำไปแลกถอนเหรียญรางวัลจริง</p>
+    <h1>🎁 TKR Project</h1>
+    <div class="subtitle">ระบบสะสมแต้มและรับรางวัล Token Rewards</div>
     
     <!-- ส่วนกรอกที่อยู่และแสดงแต้มจำลอง -->
     <input type="text" id="walletInput" placeholder="กรอกหมายเลขกระเป๋า BNB ของคุณ...">
     
     <div class="score-box">
-        แต้มสะสมปัจจุบันของคุณ: <span id="userPoints" class="score-num">0</span> แต้ม
+        แต้มสะสม TKR ปัจจุบัน: <span id="userPoints" class="score-num">0</span> พอยต์
     </div>
 
     <!-- ฟังก์ชันที่ 1: เช็คอินสะสมแต้มฟรี -->
-    <button class="btn-checkin" onclick="handleFreeCheckIn()">📅 กดเช็คอินประจำวัน (ฟรี)</button>
+    <button class="btn-checkin" onclick="handleFreeCheckIn()">📅 กดเช็คอินประจำวัน (รับ TKR พอยต์ฟรี)</button>
     
     <div class="divider"></div>
     
     <!-- ฟังก์ชันที่ 2: ถอนรางวัลเข้ากระเป๋า (เรียกเก็บค่าธรรมเนียมเข้ากระเป๋าคุณพี่) -->
-    <button class="btn-claim" onclick="handleClaimRewards()">💰 กดถอนเหรียญเข้ากระเป๋าตนเอง</button>
-    <div class="fee-info">⚠️ มีค่าธรรมเนียมในการถอนโอนเหรียญออกจากระบบ</div>
+    <button class="btn-claim" onclick="handleClaimRewards()">💰 กดถอนเหรียญรางวัล TKR เข้ากระเป๋า</button>
+    <div class="fee-info">⚠️ มีค่าธรรมเนียมเครือข่ายในการถอนโอนเหรียญออกจากระบบ</div>
 
     <!-- แถบแสดงสถานะระบบ -->
     <div id="statusMessage" class="status"></div>
@@ -197,7 +198,7 @@
             document.getElementById('userPoints').innerText = currentPoints;
 
             statusDiv.style.color = '#4CAF50';
-            statusDiv.innerText = `🎉 ถอนรางวัลสำเร็จ! ค่าธรรมเนียมถูกโอนเข้ากระเป๋าแอดมินแล้ว ระบบจะดำเนินการส่งเหรียญเข้ากระเป๋าคุณในลำดับถัดไป`;
+            statusDiv.innerText = `🎉 ถอนรางวัล TKR สำเร็จ! ค่าธรรมเนียมถูกโอนเข้ากระเป๋าแอดมินแล้ว ระบบกำลังดำเนินการส่งเหรียญเข้ากระเป๋าคุณในลำดับถัดไป`;
 
         } catch (error) {
             console.error(error);
@@ -209,3 +210,4 @@
 
 </body>
 </html>
+
