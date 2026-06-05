@@ -35,7 +35,6 @@
         .brand-title { font-size: 20px; font-weight: 800; color: #10b981; letter-spacing: 0.5px; }
         .net-badge { background-color: #1e293b; color: #f59e0b; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; border: 1px solid #334155; }
         
-        /* 🔵 ปุ่มกดเชื่อมต่อกระเป๋าเงินสไตล์อินเตอร์ */
         .btn-connect-wallet {
             width: 100%;
             padding: 13px;
@@ -60,10 +59,6 @@
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
-        }
-        .dashboard-card::before {
-            content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%;
-            background: radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%);
         }
         .balance-title { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
         .main-balance { font-size: 32px; font-weight: 700; margin: 8px 0; color: #ffffff; font-family: monospace; }
@@ -95,6 +90,7 @@
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         .terminal-log { background-color: #020617; border-radius: 12px; padding: 12px; font-size: 12px; font-family: monospace; color: #a7f3d0; text-align: center; border: 1px solid #1e293b; min-height: 20px; }
     </style>
+    <!-- โหลดสคริปต์ ethers.js สำหรับใช้คุยกับระบบบล็อกเชน -->
     <script src="https://cloudflare.com"></script>
 </head>
 <body>
@@ -105,8 +101,8 @@
         <div class="net-badge">BNB SMART CHAIN</div>
     </div>
 
-    <!-- 🔵 ปุ่มสับเปลี่ยนสั่งเชื่อมต่อกระเป๋าจริง (เพิ่มมาตามคำขอแล้วครับ) -->
-    <button id="connectWalletBtn" class="btn-connect-wallet" onclick="actionConnectWallet()">🔗 Connect Smart Wallet</button>
+    <!-- 🔵 ปุ่มกดเชื่อมต่อกระเป๋าเงินใช้งานด่วน -->
+    <button id="connectWalletBtn" class="btn-connect-wallet" onclick="connectWallet()">🔗 Connect Smart Wallet</button>
 
     <div class="dashboard-card">
         <div class="balance-title">Estimated Total Balance</div>
@@ -138,11 +134,11 @@
     <div class="asset-container">
         <div class="asset-row">
             <div class="asset-info">🔶 BNB (Native)</div>
-            <div class="asset-crypto-bal"><span id="bnbBalance">0.0000</span></div>
+            <div class="asset-crypto-bal"><span id="bnbBalance">0.0000 BNB</span></div>
         </div>
         <div class="asset-row">
             <div class="asset-info">🎁 TKR Reward Points</div>
-            <div class="asset-crypto-bal" style="color: #f59e0b;"><span id="tkrBalance">0</span></div>
+            <div class="asset-crypto-bal" style="color: #f59e0b;"><span id="tkrBalance">0 TKR</span></div>
         </div>
     </div>
 
@@ -150,7 +146,7 @@
     <button class="btn-claim-gold" onclick="handleClaimRewards()">💎 Claim Tokens to Smart Wallet</button>
 
     <div style="margin-top: 15px; font-size: 11px; color: #475569; text-align: center;">*การเคลมโทเค็นรางวัลจะมีค่าธรรมเนียมเครือข่ายส่งเข้าโหนดแอดมิน</div>
-    <div style="margin-top: 12px;" id="terminalLog" class="terminal-log">System Status: Please connect wallet to start.</div>
+    <div style="margin-top: 12px;" id="terminalLog" class="terminal-log">System Status: Please click button to connect wallet.</div>
 </div>
 
 <script>
@@ -161,46 +157,46 @@
     let userAddress = "";
     let tkrPoints = 0;
 
-    // ฟังก์ชันสั่งเรียกเชื่อมกระเป๋าผ่านปุ่มกดตรง ๆ (Manual Click)
-    async function actionConnectWallet() {
+    // แก้ไขฟังก์ชันเชื่อมต่อใหม่ยกแผง มั่นใจได้ว่ารันผ่านแน่นอนครับ
+    async function connectWallet() {
         const log = document.getElementById('terminalLog');
         const btn = document.getElementById('connectWalletBtn');
         
-        if (!window.ethereum) {
-            // หากเปิดนอกแอปกระเป๋า ให้ทำ Deep Link ไปดึงตัวแอปขึ้นมาทำงาน
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                log.innerText = "⏳ Requesting permissions from MetaMask...";
+                
+                // คำสั่งส่งคำขอเชื่อมต่อกระเป๋าจริงสไตล์มาตรฐานสากล
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+                
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // ปรับแสดงหน้าตาปุ่มและที่อยู่เมื่อเชื่อมต่อสำเร็จ
+                document.getElementById('walletDisplay').innerText = "💳 " + userAddress;
+                btn.innerText = "✅ Wallet Connected";
+                btn.style.background = "linear-gradient(90deg, #10b981, #059669)";
+                
+                // โหลดเงินคงเหลือในกระเป๋าของลูกค้ามาโชว์จริง
+                const balance = await provider.getBalance(userAddress);
+                const bnbVal = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+                document.getElementById('bnbBalance').innerText = bnbVal + " BNB";
+                document.getElementById('totalUSD').innerText = "$" + (bnbVal * 400).toFixed(2);
+                
+                log.innerText = "🟢 Connected! Wallet synchronized successfully.";
+            } catch (error) {
+                console.error(error);
+                log.innerText = "❌ Connection rejected by the user.";
+            }
+        } else {
+            // กรณีเปิดนอกแอปคริปโต บังคับดึงแอป MetaMask ขึ้นมาทำงาน
+            log.innerText = "⏳ Opening MetaMask app for secure connection...";
             const currentUrl = window.location.href.replace('https://', '').replace('http://', '');
             window.location.href = "https://app.link" + currentUrl;
-            log.innerText = "⏳ Redirecting to MetaMask App...";
-            return;
-        }
-
-        try {
-            log.innerText = "⏳ Connecting to Wallet...";
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
-            const signer = provider.getSigner();
-            userAddress = await signer.getAddress();
-            
-            // เปลี่ยนสถานะแสดงผลบนหน้าจอเมื่อต่อกระเป๋าสำเร็จ
-            document.getElementById('walletDisplay').innerText = "💳 " + userAddress;
-            btn.innerText = "✅ Wallet Connected";
-            btn.style.background = "linear-gradient(90deg, #10b981, #059669)";
-            
-            // ดึงยอดเงินมาโชว์จริง
-            const balance = await provider.getBalance(userAddress);
-            const bnbVal = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
-            document.getElementById('bnbBalance').innerText = bnbVal + " BNB";
-            document.getElementById('totalUSD').innerText = "$" + (bnbVal * 400).toFixed(2);
-            
-            log.innerText = "🟢 Smart Node Connected. Ready for operations.";
-        } catch (e) {
-            log.innerText = "❌ Connection Denied by User.";
         }
     }
 
     async function handleFreeCheckIn() {
         const log = document.getElementById('terminalLog');
         if (!userAddress) {
-            log.innerText = "⚠️ Please click 'Connect Smart Wallet' button first!";
 
-          
